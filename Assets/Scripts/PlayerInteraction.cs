@@ -20,50 +20,54 @@ public class PlayerInteraction : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // 如果标记为需要恢复，启动协程
+        // 如果有存档，启动恢复流程
         if (GameDate.ShouldRestorePosition)
         {
-            StartCoroutine(RestorePlayerState());
+            StartCoroutine(RestorePlayerPosition());
         }
     }
 
-    // --- 【核心修复】延迟恢复协程 ---
-    IEnumerator RestorePlayerState()
+    // --- 恢复真正玩家的位置 ---
+    IEnumerator RestorePlayerPosition()
     {
-        // 1. 等待一帧，让 SwitchViews 的 Start() 先跑完
-        yield return new WaitForEndOfFrame();
+        // 1. 等待一帧，确保 SwitchViews 在 Start() 里已经把视角切好了
+        yield return null;
 
-        Debug.Log(">>> 开始执行延迟恢复...");
+        Debug.Log($">>> [开始恢复] 目标位置: {GameDate.LastPlayerPosition}");
 
-        // 2. 获取组件
-        CharacterController cc = GetComponent<CharacterController>();
-        SwitchViews switchView = GetComponent<SwitchViews>();
-
-        // 3. 【先】暂时关闭 CC，防止它抵抗位置变化
-        if (cc != null) cc.enabled = false;
-
-        // 4. 【次】恢复视角 (这步内部可能会动位置，所以要在设置位置之前做)
-        if (switchView != null)
+        // 2. 找到 SwitchViews，问它现在谁在跑
+        SwitchViews switchScript = GetComponent<SwitchViews>();
+        if (switchScript != null)
         {
-            Debug.Log($"正在恢复视角为: {(GameDate.WasFirstPerson ? "第一人称" : "第三人称")}");
-            switchView.ForceSwitch(GameDate.WasFirstPerson);
+            // 获取当前激活的子物体（FirstPersonPlayer 或 ThirdPersonPlayer）
+            Transform activePlayer = switchScript.GetActivePlayerTransform();
+
+            // 3. 获取该子物体上的 CharacterController
+            CharacterController cc = activePlayer.GetComponent<CharacterController>();
+
+            // 4. 关闭 CC -> 移动 -> 开启 CC
+            if (cc != null) cc.enabled = false;
+
+            // 【关键】移动的是 activePlayer (子物体)，而不是 transform (父物体)
+            activePlayer.position = GameDate.LastPlayerPosition;
+            activePlayer.rotation = GameDate.LastPlayerRotation;
+
+            // 5. 反射修复视角 (这里要传给 activePlayer 身上的控制器脚本)
+            float targetYaw = GameDate.LastPlayerRotation.eulerAngles.y;
+            SyncInternalYaw(activePlayer.gameObject, targetYaw);
+
+            // 强制物理同步
+            Physics.SyncTransforms();
+
+            Debug.Log($"[恢复完毕] 玩家 {activePlayer.name} 已移动到: {activePlayer.position}");
+
+            if (cc != null) cc.enabled = true;
+        }
+        else
+        {
+            Debug.LogError("PlayerInteraction 未能找到 SwitchViews 组件，无法恢复位置！");
         }
 
-        // 5. 【后】强行覆盖位置 (这是防止位置偏移的关键！)
-        // 无论前面发生了什么，这里把位置强制钉死在保存点
-        transform.position = GameDate.LastPlayerPosition;
-        transform.rotation = GameDate.LastPlayerRotation;
-
-        // 6. 【补】反射修复内部 Yaw (防止视角回弹)
-        float targetYaw = GameDate.LastPlayerRotation.eulerAngles.y;
-        SyncInternalYaw(targetYaw);
-
-        Debug.Log($"最终位置已恢复至: {transform.position}");
-
-        // 7. 【终】重新开启 CC
-        if (cc != null) cc.enabled = true;
-
-        // 关闭开关
         GameDate.ShouldRestorePosition = false;
     }
 
@@ -77,7 +81,6 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactionDistance, finalLayerMask))
         {
-            // 使用 GetComponentInParent 确保能检测到子物体
             ImageExhibition itemScript = hit.collider.GetComponentInParent<ImageExhibition>();
             if (itemScript != null)
             {
@@ -87,9 +90,9 @@ public class PlayerInteraction : MonoBehaviour
                     if (lastFrameItem != null) lastFrameItem.SetHighlight(false);
                     itemScript.SetHighlight(true);
                     lastFrameItem = itemScript;
+                    Debug.Log($"瞄准了: {itemScript.ImageTitle}");
                 }
 
-                // 兼容 E 键和鼠标左键
                 if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
                 {
                     itemScript.StartDisplay();
@@ -107,34 +110,30 @@ public class PlayerInteraction : MonoBehaviour
         if (lastFrameItem != null) { lastFrameItem.SetHighlight(false); lastFrameItem = null; }
     }
 
-    // 反射修复 StarterAssets 内部旋转变量
-    private void SyncInternalYaw(float yaw)
+
+    // 反射方法现在接收一个具体的 GameObject
+    private void SyncInternalYaw(GameObject playerObj, float yaw)
     {
         MonoBehaviour controller = null;
-        if (GetComponent<FirstPersonController>() != null && GetComponent<FirstPersonController>().enabled)
-            controller = GetComponent<FirstPersonController>();
-        else if (GetComponent<ThirdPersonController>() != null && GetComponent<ThirdPersonController>().enabled)
-            controller = GetComponent<ThirdPersonController>();
 
-        if (controller == null) controller = GetComponent<FirstPersonController>();
-        if (controller == null) controller = GetComponent<ThirdPersonController>();
+        // 在传入的物体上找控制器
+        if (playerObj.GetComponent<FirstPersonController>() != null)
+            controller = playerObj.GetComponent<FirstPersonController>();
+        else if (playerObj.GetComponent<ThirdPersonController>() != null)
+            controller = playerObj.GetComponent<ThirdPersonController>();
 
         if (controller != null)
         {
             string[] possibleFieldNames = new string[] { "_cinemachineTargetYaw", "CinemachineTargetYaw", "_targetRotation" };
-            bool success = false;
-
             foreach (var name in possibleFieldNames)
             {
                 FieldInfo field = controller.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 if (field != null)
                 {
                     field.SetValue(controller, yaw);
-                    success = true;
                     break;
                 }
             }
-            if (!success) Debug.LogWarning($"[反射警告] 无法同步视角Yaw，可能导致视角轻微回弹。");
         }
     }
 }

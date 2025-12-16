@@ -17,10 +17,7 @@ public class SwitchViews : MonoBehaviour
     [Header("快捷键设置")]
     public KeyCode switchKey = KeyCode.T;
     [Header("默认第一视角")]
-    public bool startInFirstPerson = false;
-
-    // 内部状态
-    private bool isFirstPerson;
+    public bool startInFirstPerson = true;
 
     // 缓存组件引用
     private StarterAssetsInputs fpcInput, tpcInput;
@@ -30,7 +27,7 @@ public class SwitchViews : MonoBehaviour
     {
         InitializeComponents();
 
-        // 防止 Input System 抢占，先全部关闭
+        // 1. 先关闭 Input，防止抢夺控制
         fpcRoot.SetActive(false);
         tpcRoot.SetActive(false);
 
@@ -38,15 +35,25 @@ public class SwitchViews : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // 应用初始视角
-        SetViewMode(startInFirstPerson);
+        // ------------------ 【核心逻辑：开局定胜负】 ------------------
+        // 在 Start 中直接检查存档，恢复正确的视角，避免与 PlayerInteraction 冲突。
+        if (GameDate.ShouldRestorePosition)
+        {
+            SetViewMode(GameDate.WasFirstPerson);
+        }
+        else
+        {
+            SetViewMode(startInFirstPerson);
+        }
     }
 
     void Update()
     {
+        // 监听按键切换
         if (Input.GetKeyDown(switchKey))
         {
-            SetViewMode(!isFirstPerson);
+            // 取反：当前是第一人称，就切第三，反之亦然
+            SetViewMode(!IsInFirstPerson());
         }
     }
 
@@ -60,32 +67,64 @@ public class SwitchViews : MonoBehaviour
         StarterAssetsInputs oldInput = toFps ? tpcInput : fpcInput;
         StarterAssetsInputs newInput = toFps ? fpcInput : tpcInput;
 
-        // 关闭旧视角
+        // 关闭旧的
         if (oldRoot.activeSelf)
         {
             oldRoot.SetActive(false);
             if (oldInput) ResetInput(oldInput);
         }
 
-        // 计算对齐
+        // 计算摄像机对齐
         GetCameraAlignment(oldPlayer, out Vector3 targetPos, out float targetYaw, out float targetPitch);
 
-        // 应用位置
+        // 应用位置到新角色
         newPlayer.position = targetPos;
         newPlayer.rotation = Quaternion.Euler(0, targetYaw, 0);
 
-        // 反射同步变量
+        // 反射同步内部变量
         MonoBehaviour targetScript = toFps ? fpcScript : tpcScript;
         SyncInternalVariables(targetScript, targetYaw, targetPitch);
 
-        // 激活新视角
+        // 激活新的
         newRoot.SetActive(true);
         if (newInput) ResetInput(newInput);
-
-        isFirstPerson = toFps;
     }
 
-    // --- 辅助方法 ---
+    // =========================================================
+    // 对外接口
+    // =========================================================
+
+    // 判断当前是否是第一人称 (检查 fpcRoot 激活状态，这是最准确的)
+    public bool IsInFirstPerson()
+    {
+        if (fpcRoot != null) return fpcRoot.activeSelf;
+        return true;
+    }
+
+    // 【核心接口】获取当前正在控制的玩家 Transform (子物体)
+    public Transform GetActivePlayerTransform()
+    {
+        if (IsInFirstPerson())
+        {
+            // 如果是第一人称，返回 FPC 玩家 Transform (例如 PlayerCapsule)
+            return fpcPlayer != null ? fpcPlayer : transform;
+        }
+        else
+        {
+            // 如果是第三人称，返回 TPC 玩家 Transform (例如 PlayerArmature)
+            return tpcPlayer != null ? tpcPlayer : transform;
+        }
+    }
+
+    public void ForceSwitch(bool toFirstPerson)
+    {
+        SetViewMode(toFirstPerson);
+    }
+
+    // =========================================================
+    // 辅助方法
+    // =========================================================
+
     private void InitializeComponents()
     {
         if (fpcRoot)
@@ -102,7 +141,7 @@ public class SwitchViews : MonoBehaviour
 
     private void GetCameraAlignment(Transform fallbackTransform, out Vector3 pos, out float yaw, out float pitch)
     {
-        pos = fallbackTransform.position + Vector3.up * 0.05f;
+        pos = fallbackTransform.position;
         Camera mainCam = Camera.main;
         if (mainCam != null)
         {
@@ -137,23 +176,5 @@ public class SwitchViews : MonoBehaviour
         input.jump = false;
         input.sprint = false;
         input.analogMovement = false;
-    }
-
-    // =========================================================
-    // 【关键修改】取消注释以下两个方法，供 PlayerInteraction 调用
-    // =========================================================
-
-    // 判断当前是否是第一人称
-    public bool IsInFirstPerson()
-    {
-        // 简单判断：如果第一人称根节点是激活的，那就是第一人称
-        return fpcRoot != null && fpcRoot.activeSelf;
-    }
-
-    // 强行切换到指定视角 (供恢复存档使用)
-    public void ForceSwitch(bool toFirstPerson)
-    {
-        // 直接调用核心逻辑，不经过按键判断
-        SetViewMode(toFirstPerson);
     }
 }

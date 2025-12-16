@@ -55,14 +55,19 @@ public class ImageDisplayController : MonoBehaviour
     {
         if (imageAudio) imageAudio.Stop();
 
-        // 使用配置好的变量进行跳转
+        // 【修改】使用加载器跳转
         if (!string.IsNullOrEmpty(returnSceneName))
         {
-            SceneManager.LoadScene(returnSceneName);
-        }
-        else
-        {
-            Debug.LogError("返回场景名字为空！请在 Inspector 面板检查 Return Scene Name 设置");
+            // SceneManager.LoadScene(returnSceneName); // 以前的写法
+            // 确保 SceneLoding 脚本存在，否则直接跳转
+            if (System.Type.GetType("SceneLoding") != null)
+            {
+                SceneLoding.LoadLevel(returnSceneName);
+            }
+            else
+            {
+                SceneManager.LoadScene(returnSceneName);
+            }
         }
     }
 }

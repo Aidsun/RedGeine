@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class ImageExhibition : MonoBehaviour
 {
@@ -8,13 +9,25 @@ public class ImageExhibition : MonoBehaviour
     [TextArea(5, 10)] public string ImageDescriptionText;
     public Sprite ImageSprite;
     public AudioClip artAudioClip;
-
+    public TMP_Text ShowTitle;
     [Header("高亮设置")]
     public Renderer outlineRenderer;
 
     [Header("跳转目标场景")]
     public string targetSceneName = "ImageContent";
 
+    private void Start()
+    {
+        if (ShowTitle != null)
+        {
+            //展示标题内容
+            ShowTitle.text = "《"+ImageTitle+"》";
+        }
+        else
+        {
+            Debug.LogWarning("展示标题ShowTitle组件未绑定，无法显示标题。");
+        }
+    }
     public void SetHighlight(bool isActive)
     {
         if (outlineRenderer != null)
@@ -48,10 +61,7 @@ public class ImageExhibition : MonoBehaviour
 
             // 保存视角状态
             GameDate.WasFirstPerson = switchScript.IsInFirstPerson();
-
-            Debug.Log($"=== [存档成功] ===");
-            Debug.Log($"保存真实坐标: {GameDate.LastPlayerPosition}");
-            Debug.Log($"保存视角: {(GameDate.WasFirstPerson ? "第一人称" : "第三人称")}");
+            Debug.Log($"【存档成功!】,保存真实坐标: {GameDate.LastPlayerPosition}，保存视角: {(GameDate.WasFirstPerson ? "第一人称" : "第三人称")}");
         }
         else
         {

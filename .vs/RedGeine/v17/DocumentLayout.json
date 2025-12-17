@@ -3,27 +3,27 @@
   "WorkspaceRootPath": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\assets\\scripts\\imageexhibition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\imageexhibition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\assets\\scripts\\switchviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\switchviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\assets\\scripts\\playerinteraction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\playerinteraction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\imagedisplaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\imagedisplaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\playerinteraction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\playerinteraction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\imageexhibition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\imageexhibition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\switchviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\switchviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\gamedate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\assets\\scripts\\gamedate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\gamedate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|c:\\users\\aidsu\\desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\redgeine\\assets\\scripts\\sceneloding.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\assets\\scripts\\sceneloding.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5805E78D-48A0-6440-8327-DDD37FCA32F2}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\sceneloding.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
@@ -46,51 +46,50 @@
               "RelativeToolTip": "Assets\\Scripts\\GameDate.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAAqwBkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T16:03:08.731Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T16:03:08.731Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "PlayerInteraction.cs",
               "DocumentMoniker": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\PlayerInteraction.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\PlayerInteraction.cs",
               "ToolTip": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\PlayerInteraction.cs",
               "RelativeToolTip": "Assets\\Scripts\\PlayerInteraction.cs",
-              "ViewState": "AgIAAHAAAAAAAAAAAAAqwIoAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAiwIAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-16T12:48:14.752Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "SwitchViews.cs",
               "DocumentMoniker": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\SwitchViews.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SwitchViews.cs",
               "ToolTip": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\SwitchViews.cs",
               "RelativeToolTip": "Assets\\Scripts\\SwitchViews.cs",
-              "ViewState": "AgIAAJkAAAAAAAAAAAAqwLMAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAALMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-16T12:47:40.02Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "ImageExhibition.cs",
               "DocumentMoniker": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\ImageExhibition.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ImageExhibition.cs",
               "ToolTip": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\ImageExhibition.cs",
               "RelativeToolTip": "Assets\\Scripts\\ImageExhibition.cs",
-              "ViewState": "AgIAAC4AAAAAAAAAAAAqwEgAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAADgAAAAAAAAAAAAgwD8AAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-16T12:36:51.401Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "ImageDisplayController.cs",
               "DocumentMoniker": "C:\\Users\\Aidsu\\Desktop\\\u6BD5\u4E1A\u8BBE\u8BA1\\\u9879\u76EE\\RedGeine\\Assets\\Scripts\\ImageDisplayController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ImageDisplayController.cs",
@@ -111,8 +110,7 @@
               "RelativeToolTip": "Assets\\Scripts\\SceneLoding.cs",
               "ViewState": "AgIAACoAAAAAAAAAAAAYwA8AAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T12:33:21.407Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T12:33:21.407Z"
             }
           ]
         }

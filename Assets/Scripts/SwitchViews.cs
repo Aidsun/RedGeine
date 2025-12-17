@@ -23,7 +23,7 @@ public class SwitchViews : MonoBehaviour
     private StarterAssetsInputs fpcInput, tpcInput;
     private MonoBehaviour fpcScript, tpcScript;
 
-    void Start()
+    void Awake()
     {
         InitializeComponents();
 

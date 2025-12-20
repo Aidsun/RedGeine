@@ -7,20 +7,22 @@ using UnityEngine.SceneManagement;
 public class VideoDisplayController : MonoBehaviour
 {
     [Header("核心组件")]
-    public VideoPlayer videoPlayer; // 拖入场景里的 Video Player
-    public RawImage displayScreen;  // 拖入 UI 上的 Raw Image (显示画面的)
+    public VideoPlayer videoPlayer;   // 拖入场景里的 Video Player
+    public RawImage displayScreen;    // 拖入用来显示视频的 Raw Image
+    public AspectRatioFitter videoFitter; // 【新增】拖入 Raw Image 上的 AspectRatioFitter 组件
 
     [Header("UI 信息绑定")]
-    public TMP_Text titleText;
-    public TMP_Text descriptionText;
+    public TMP_Text titleText;        // 拖入右侧的标题文本
+    public TMP_Text descriptionText;  // 拖入右侧的介绍文本
 
     [Header("控制按钮")]
-    public Button playPauseButton;
-    public TMP_Text playPauseBtnText;
-    public Button exitButton;
-
-    [Header("返回设置")]
+    public Button exitButton;         // 拖入左上角的退出按钮
+    public Button pauseButton;
+    [Header("设置")]
     public string returnSceneName = "Museum_Main";
+
+    // 内部状态
+    private bool isPrepared = false;
 
     void Start()
     {
@@ -29,16 +31,18 @@ public class VideoDisplayController : MonoBehaviour
 
         if (data != null)
         {
+            // 设置文字内容
             if (titleText) titleText.text = data.Title;
             if (descriptionText) descriptionText.text = data.DescriptionText;
 
+            // 设置视频并准备播放
             if (videoPlayer && data.VideoFile)
             {
-                // 设置视频源
                 videoPlayer.clip = data.VideoFile;
 
-                // 准备并播放 (Render Texture 模式)
-                videoPlayer.Play();
+                // 监听视频准备完成事件，用于调整宽高比
+                videoPlayer.prepareCompleted += OnVideoPrepared;
+                videoPlayer.Prepare(); // 开始准备
             }
         }
         else
@@ -46,28 +50,49 @@ public class VideoDisplayController : MonoBehaviour
             Debug.LogError("【错误】没有读取到视频数据，请从浏览馆入口进入！");
         }
 
-        // 2. 绑定按钮事件
+        // 2. 绑定退出按钮
         if (exitButton) exitButton.onClick.AddListener(OnExit);
-        if (playPauseButton) playPauseButton.onClick.AddListener(OnPlayPause);
 
-        // 3. 解锁鼠标 (非常重要，否则你看得到光标但点不了)
+        // 3. 解锁鼠标，确保可以点击退出按钮
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        //增加按钮暂停功能
+        pauseButton.onClick.AddListener(TogglePlayPause);
     }
 
-    void OnPlayPause()
+    // 视频准备好后的回调
+    void OnVideoPrepared(VideoPlayer vp)
     {
-        if (videoPlayer == null) return;
+        isPrepared = true;
+        vp.Play(); // 自动开始播放
 
+        // 【核心】根据视频源的宽高，动态设置 RawImage 的比例
+        if (videoFitter != null)
+        {
+            // 比如 1920/1080 = 1.777
+            videoFitter.aspectRatio = (float)vp.width / vp.height;
+        }
+    }
+
+    void Update()
+    {
+        // 监听空格键暂停/继续
+        if (isPrepared && Input.GetKeyDown(KeyCode.Space))
+        {
+            TogglePlayPause();
+        }
+    }
+
+    void TogglePlayPause()
+    {
         if (videoPlayer.isPlaying)
         {
             videoPlayer.Pause();
-            if (playPauseBtnText) playPauseBtnText.text = "播放";
         }
         else
         {
             videoPlayer.Play();
-            if (playPauseBtnText) playPauseBtnText.text = "暂停";
         }
     }
 
@@ -76,7 +101,10 @@ public class VideoDisplayController : MonoBehaviour
         // 停止视频
         if (videoPlayer) videoPlayer.Stop();
 
-        // 返回大厅 (使用加载器)
+        // 移除事件监听防止内存泄漏
+        videoPlayer.prepareCompleted -= OnVideoPrepared;
+
+        // 返回大厅
         if (System.Type.GetType("SceneLoding") != null)
         {
             SceneLoding.LoadLevel(returnSceneName);

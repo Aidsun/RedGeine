@@ -65,7 +65,7 @@ public class SceneLoding : MonoBehaviour
 
         operation.allowSceneActivation = true;
     }
-
+    //加载场景供别人调用
     public static void LoadLevel(string sceneName)
     {
         SceneToLoad = sceneName;

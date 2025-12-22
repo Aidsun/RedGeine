@@ -11,9 +11,9 @@ public class GameDate : MonoBehaviour
         public Sprite ImageShow;
         public AudioClip DescriptionAudio;
     }
-
     // 全局图片数据单例
     public static ImageDate CurrentImageData;
+
     //视频数据包
     public class VideoDate
     {
@@ -23,6 +23,25 @@ public class GameDate : MonoBehaviour
     }
     //全局视频数据单例
     public static VideoDate CurrentVideoDate;
+
+    //全景视频数据包
+    public class PanoramaDate
+    {
+        public string Title;
+        public VideoClip panoramaFile;
+    }
+    //全局全景视频数据单例
+    public static PanoramaDate CurrentPanoramaDate;
+
+    //高亮颜色数据包
+    public class HighColor
+    {
+        public Color unActiveColor = Color.blue;
+        public Color isActiveColor = Color.white;
+    }
+    //全局高亮颜色数据单例
+    public static HighColor CurrentHighColor;
+
 
     // 归档数据——位置和视角
     public static Vector3 LastPlayerPosition;

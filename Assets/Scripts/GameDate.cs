@@ -11,43 +11,38 @@ public class GameDate : MonoBehaviour
         public Sprite ImageShow;
         public AudioClip DescriptionAudio;
     }
-    // 全局图片数据单例
     public static ImageDate CurrentImageData;
 
-    //视频数据包
+    // 视频数据包
     public class VideoDate
     {
         public string Title;
         public VideoClip VideoFile;
         public string DescriptionText;
+        public AudioClip DescriptionAudio;
     }
-    //全局视频数据单例
     public static VideoDate CurrentVideoDate;
 
-    //全景视频数据包
+    // 全景视频数据包
     public class PanoramaDate
     {
         public string Title;
         public VideoClip panoramaFile;
+        public AudioClip DescriptionAudio; // 【新增】补上音频槽位
     }
-    //全局全景视频数据单例
     public static PanoramaDate CurrentPanoramaDate;
 
-    //高亮颜色数据包
+    // 高亮颜色数据包
     public class HighColor
     {
         public Color unActiveColor = Color.blue;
         public Color isActiveColor = Color.white;
     }
-    //全局高亮颜色数据单例
     public static HighColor CurrentHighColor;
 
-
-    // 归档数据——位置和视角
+    // 归档数据
     public static Vector3 LastPlayerPosition;
     public static Quaternion LastPlayerRotation;
-    // 开关：告诉漫游场景是否需要恢复位置
     public static bool ShouldRestorePosition = false;
-    // 存视角状态：true=第一人称，false=第三人称
     public static bool WasFirstPerson = true;
 }

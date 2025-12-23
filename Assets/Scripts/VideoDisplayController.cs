@@ -9,11 +9,12 @@ public class VideoDisplayController : MonoBehaviour
     [Header("核心组件")]
     public VideoPlayer videoPlayer;   // 拖入场景里的 Video Player
     public RawImage displayScreen;    // 拖入用来显示视频的 Raw Image
-    public AspectRatioFitter videoFitter; // 【新增】拖入 Raw Image 上的 AspectRatioFitter 组件
+    public AspectRatioFitter videoFitter; //拖入 Raw Image 上的 AspectRatioFitter 组件
 
     [Header("UI 信息绑定")]
     public TMP_Text titleText;        // 拖入右侧的标题文本
     public TMP_Text descriptionText;  // 拖入右侧的介绍文本
+    public AudioSource desciptionAudio;
 
     [Header("控制按钮")]
     public Button exitButton;         // 拖入左上角的退出按钮
@@ -34,6 +35,7 @@ public class VideoDisplayController : MonoBehaviour
             // 设置文字内容
             if (titleText) titleText.text = data.Title;
             if (descriptionText) descriptionText.text = data.DescriptionText;
+            if (desciptionAudio) desciptionAudio.clip = data.DescriptionAudio; desciptionAudio.Play();
 
             // 设置视频并准备播放
             if (videoPlayer && data.VideoFile)

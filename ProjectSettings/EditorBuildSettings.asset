@@ -6,21 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/StartGame.unity
+    guid: e410c4b7e8987214db1338b089e2c163
+  - enabled: 1
     path: Assets/Scenes/Museum_Main.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Scenes/ImageContent.unity
-    guid: f7d10acce607f45498f97436ec33f12b
-  - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
     guid: 710b1832615db8843b8ced53d7ccf853
+  - enabled: 1
+    path: Assets/Scenes/ImageContent.unity
+    guid: f7d10acce607f45498f97436ec33f12b
   - enabled: 1
     path: Assets/Scenes/VideoContent.unity
     guid: 7f5dc8f58bec1884f85a58ecea701bcd
   - enabled: 1
     path: Assets/Scenes/PanoramaContent.unity
     guid: c0e8bc5728522c749a89a4cf7e961b3b
-  - enabled: 1
-    path: Assets/Scenes/StartGame.unity
-    guid: e410c4b7e8987214db1338b089e2c163
   m_configObjects: {}

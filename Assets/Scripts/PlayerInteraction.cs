@@ -22,7 +22,8 @@ public class PlayerInteraction : MonoBehaviour
         // 计算最终 LayerMask，忽略玩家层
         if (playerLayerIndex != -1) finalLayerMask = ~(1 << playerLayerIndex);
         else finalLayerMask = ~0;
-        // 锁定并隐藏鼠标
+
+        // 锁定并隐藏鼠标 (初始化时)
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -72,8 +73,19 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        // ==========================================================
+        // 【关键修复】如果控制面板打开了，直接不再进行射线检测
+        // ==========================================================
+        if (SettingPanel.Instance != null && SettingPanel.Instance.isPanelActive)
+        {
+            // 此时应该清除可能残留的高亮，保持界面干净
+            ClearHighlight();
+            return;
+        }
+
         Camera mainCam = Camera.main;
         if (mainCam == null) return;
+
         // 从屏幕中心发射射线
         Ray ray = mainCam.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
         RaycastHit hit;
@@ -101,10 +113,10 @@ public class PlayerInteraction : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
                     vidScript.StartDisplay();
             }
-            else if(pnmScript != null)
+            else if (pnmScript != null)
             {
                 HandleHighlight(pnmScript, pnmScript.PanoramaTitle);
-                if(Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
+                if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0))
                     pnmScript.StartDisplay();
             }
             else
@@ -131,7 +143,8 @@ public class PlayerInteraction : MonoBehaviour
             if (currentItem is PanoramaExhibition pnm) pnm.SetHighlight(true);
 
             lastFrameItem = currentItem;
-            Debug.Log($"您瞄准了: 《{itemName}》，按下E键或左键可进行交互！");
+            // 可以选择是否一直打印日志，或者只在高亮变化时打印
+            // Debug.Log($"您瞄准了: 《{itemName}》，按下E键或左键可进行交互！");
         }
     }
 

@@ -33,7 +33,7 @@ public class VideoDisplayController : MonoBehaviour
         if (data != null)
         {
             // …Ë÷√Œƒ◊÷ƒ⁄»›
-            if (titleText) titleText.text = data.Title;
+            if (titleText) titleText.text = "°∂"+data.Title+"°∑";
             if (descriptionText) descriptionText.text = data.DescriptionText;
             if (desciptionAudio) desciptionAudio.clip = data.DescriptionAudio; desciptionAudio.Play();
 

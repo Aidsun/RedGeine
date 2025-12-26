@@ -14,7 +14,7 @@ public class VideoDisplayController : MonoBehaviour
     [Header("UI 信息绑定")]
     public TMP_Text titleText;
     public TMP_Text descriptionText;
-    public AudioSource descriptionAudio;  // 解说音频源
+    public AudioSource descriptionAudio;
 
     [Header("控制按钮")]
     public Button exitButton;
@@ -57,11 +57,10 @@ public class VideoDisplayController : MonoBehaviour
             if (titleText) titleText.text = "《" + data.Title + "》";
             if (descriptionText) descriptionText.text = data.DescriptionText;
 
-            // 播放解说
             if (descriptionAudio && data.DescriptionAudio)
             {
                 descriptionAudio.clip = data.DescriptionAudio;
-                descriptionAudio.volume = currentDescriptionVolume; // 应用音量
+                descriptionAudio.volume = currentDescriptionVolume;
                 descriptionAudio.Play();
             }
 
@@ -82,18 +81,17 @@ public class VideoDisplayController : MonoBehaviour
 
     private void ApplyCurrentSettings(SettingPanel.SettingDate settings)
     {
-        // 【核心修复】读取两个不同的音量设置
         currentVideoVolume = settings.videoVolume;
         currentDescriptionVolume = settings.descriptionVolume;
 
-        // 1. 更新解说音量
+        // 1. 实时更新解说音量
         if (descriptionAudio != null)
         {
             descriptionAudio.volume = currentDescriptionVolume;
         }
 
-        // 2. 更新视频音量
-        if (videoPlayer != null && isPrepared)
+        // 2. 实时更新视频音量 (即使正在播放)
+        if (videoPlayer != null)
         {
             SetVideoPlayerVolume(currentVideoVolume);
         }
@@ -111,14 +109,13 @@ public class VideoDisplayController : MonoBehaviour
     {
         if (videoPlayer != null)
         {
+            // 实时设置所有声道的音量
             for (ushort i = 0; i < videoPlayer.audioTrackCount; i++)
             {
                 videoPlayer.SetDirectAudioVolume(i, volume);
             }
         }
     }
-
-    // ... (Update, TogglePlayPause, OnExitButtonClicked 保持原样，无需变动)
 
     void Update()
     {

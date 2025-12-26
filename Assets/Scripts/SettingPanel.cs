@@ -28,14 +28,14 @@ public class SettingPanel : MonoBehaviour
     // ==========================================================
     [Space(10)]
     [Header("=== 🎵 全局音效资源 ===")]
-    public AudioClip buttonClickClip; // 受按钮音量控制
-    public AudioClip panelOpenClip;   // 受按钮音量控制
-    public AudioClip highlightClip;   // 受按钮音量控制
-    public AudioClip themeMusicClip;  // 受背景音乐音量控制
+    public AudioClip buttonClickClip;
+    public AudioClip panelOpenClip;
+    public AudioClip highlightClip;
+    public AudioClip themeMusicClip;
 
     // 音频源轨道
-    private AudioSource uiAudioSource;  // 负责：按钮、面板、高亮
-    private AudioSource bgmAudioSource; // 负责：主题曲
+    private AudioSource uiAudioSource;
+    private AudioSource bgmAudioSource;
 
     // ==========================================================
     // UI 绑定区域
@@ -54,10 +54,10 @@ public class SettingPanel : MonoBehaviour
     public TMP_InputField stepDistInput;
 
     [Header("=== 🔊 音效与系统 UI ===")]
-    public Slider bgmVolumeSlider;          // 控制 BGM & Loading
-    public Slider videoVolumeSlider;        // 控制 视频 & 全景
-    public Slider descriptionVolumeSlider;  // 控制 解说
-    public Slider buttonVolumeSlider;       // 控制 按钮 & 面板 & 高亮
+    public Slider bgmVolumeSlider;
+    public Slider videoVolumeSlider;
+    public Slider descriptionVolumeSlider;
+    public Slider buttonVolumeSlider;
     public TMP_InputField loadingTimeInput;
     public TMP_InputField loopCountInput;
 
@@ -120,12 +120,10 @@ public class SettingPanel : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            // 1. 初始化 UI 音效轨道 (按钮/高亮)
             uiAudioSource = GetComponent<AudioSource>();
             if (uiAudioSource == null) uiAudioSource = gameObject.AddComponent<AudioSource>();
             uiAudioSource.playOnAwake = false;
 
-            // 2. 初始化 BGM 音效轨道 (主题曲)
             GameObject bgmObj = new GameObject("BGM_Player");
             bgmObj.transform.SetParent(this.transform);
             bgmAudioSource = bgmObj.AddComponent<AudioSource>();
@@ -147,8 +145,6 @@ public class SettingPanel : MonoBehaviour
             SwitchSettingPanel(false);
         }
         Invoke("NotifySettingsChanged", 0.1f);
-
-        // 场景加载后检查是否需要播放 BGM
         CheckAndPlayBGM(scene.name);
     }
 
@@ -156,19 +152,24 @@ public class SettingPanel : MonoBehaviour
     {
         if (bgmAudioSource == null) return;
 
-        // 如果是 StartGame 或 LoadingScene，由它们自己控制声音，这里停止 BGM
-        if (sceneName == startSceneName || sceneName == loadingSceneName)
-        {
-            if (bgmAudioSource.isPlaying) bgmAudioSource.Stop();
-        }
-        // 其他场景 (博物馆、展厅) 播放主题曲
-        else
+        if (sceneName == mainSceneName)
         {
             if (themeMusicClip != null)
             {
-                if (bgmAudioSource.clip != themeMusicClip) bgmAudioSource.clip = themeMusicClip;
-                if (!bgmAudioSource.isPlaying) bgmAudioSource.Play();
+                if (bgmAudioSource.clip != themeMusicClip)
+                {
+                    bgmAudioSource.clip = themeMusicClip;
+                    bgmAudioSource.Play();
+                }
+                else if (!bgmAudioSource.isPlaying)
+                {
+                    bgmAudioSource.Play();
+                }
             }
+        }
+        else
+        {
+            if (bgmAudioSource.isPlaying) bgmAudioSource.Pause();
         }
     }
 
@@ -206,9 +207,6 @@ public class SettingPanel : MonoBehaviour
         }
     }
 
-    // ==========================================================
-    // 核心接口
-    // ==========================================================
     public static void RegisterApplyMethod(ApplySettingDelegate applyMethod)
     {
         if (!applyDelegates.Contains(applyMethod))
@@ -223,17 +221,18 @@ public class SettingPanel : MonoBehaviour
         if (applyDelegates.Contains(applyMethod)) applyDelegates.Remove(applyMethod);
     }
 
+    // 【核心修复】在这里实现实时控制
     private void NotifySettingsChanged()
     {
         if (OnSettingsChanged != null) OnSettingsChanged(settingData);
 
-        // 【关键修复】实时更新两个 AudioSource 的音量
-        // 1. UI 音源 (按钮、面板、高亮) -> 受 ButtonVolume 控制
+        // 1. 实时更新按钮/面板/高亮音量
         if (uiAudioSource != null) uiAudioSource.volume = settingData.buttonVolume;
 
-        // 2. BGM 音源 (主题曲) -> 受 BGMVolume 控制
+        // 2. 实时更新背景音乐音量
         if (bgmAudioSource != null) bgmAudioSource.volume = settingData.bgmVolume;
 
+        // 3. 通知其他所有脚本更新 (视频、解说、开始界面等)
         foreach (var applyMethod in applyDelegates.ToList())
         {
             try { applyMethod(settingData); }
@@ -242,32 +241,22 @@ public class SettingPanel : MonoBehaviour
         ApplySettingsToGame();
     }
 
-    // ==========================================================
-    // 🔊 音效播放接口
-    // ==========================================================
-
-    // 1. 播放按钮点击 (受 ButtonVolume)
     public void PlayButtonSound()
     {
         if (uiAudioSource != null && buttonClickClip != null)
             uiAudioSource.PlayOneShot(buttonClickClip);
     }
 
-    // 2. 播放高亮音效 (受 ButtonVolume)
     public void PlayHighlightSound()
     {
         if (uiAudioSource != null && highlightClip != null)
             uiAudioSource.PlayOneShot(highlightClip);
     }
 
-    // ==========================================================
-    // 面板开关 (音效受 ButtonVolume)
-    // ==========================================================
     public void SwitchSettingPanel(bool isOpen)
     {
         if (panelRoot == null) return;
 
-        // 播放面板音效
         if (uiAudioSource != null && panelOpenClip != null)
             uiAudioSource.PlayOneShot(panelOpenClip);
 
@@ -305,9 +294,6 @@ public class SettingPanel : MonoBehaviour
         SwitchSettingPanel(!isPanelActive);
     }
 
-    // ==========================================================
-    // 退出
-    // ==========================================================
     public void OnExitButton()
     {
         PlayButtonSound();
@@ -347,9 +333,6 @@ public class SettingPanel : MonoBehaviour
             SceneManager.LoadScene(sceneName);
     }
 
-    // ==========================================================
-    // 初始化与绑定
-    // ==========================================================
     private void InitUIValues()
     {
         UpdateDropdownSelection(viewKeyDropdown, settingData.viewSwitchKey);
@@ -373,17 +356,9 @@ public class SettingPanel : MonoBehaviour
     private void BindUIEvents()
     {
         if (footstepVolumeSlider) footstepVolumeSlider.onValueChanged.AddListener((v) => { settingData.footstepVolume = v; NotifySettingsChanged(); });
-
-        // 【绑定】BGM滑块 -> 更新数据 & 通知刷新
         if (bgmVolumeSlider) bgmVolumeSlider.onValueChanged.AddListener((v) => { settingData.bgmVolume = v; NotifySettingsChanged(); });
-
-        // 【绑定】视频滑块
         if (videoVolumeSlider) videoVolumeSlider.onValueChanged.AddListener((v) => { settingData.videoVolume = v; NotifySettingsChanged(); });
-
-        // 【绑定】解说滑块
         if (descriptionVolumeSlider) descriptionVolumeSlider.onValueChanged.AddListener((v) => { settingData.descriptionVolume = v; NotifySettingsChanged(); });
-
-        // 【绑定】按钮滑块
         if (buttonVolumeSlider) buttonVolumeSlider.onValueChanged.AddListener((v) => { settingData.buttonVolume = v; NotifySettingsChanged(); });
 
         if (defaultViewToggle) defaultViewToggle.onValueChanged.AddListener((isOn) => { settingData.defaultFirstPersonView = isOn; NotifySettingsChanged(); });

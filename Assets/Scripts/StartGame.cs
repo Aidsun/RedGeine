@@ -26,7 +26,6 @@ public class StartGame : MonoBehaviour
     public Button startBtn;
     public Button quitBtn;
 
-    // 内部变量
     private int currentLoopCount = 0;
     private bool transitionStarted = false;
 
@@ -75,22 +74,17 @@ public class StartGame : MonoBehaviour
         if (quitBtn) quitBtn.onClick.AddListener(QuitButton);
     }
 
-    // 【新增】每帧检查：如果设置面板打开了，禁止点后面的按钮
     void Update()
     {
-        // 1. 声音淡出过程中的逻辑
         if (transitionStarted) return;
 
-        // 2. 面板互斥逻辑：如果设置面板打开了，禁用UI组；关掉了，恢复UI组
         if (SettingPanel.Instance != null && uiGroup != null && uiGroup.alpha >= 0.9f)
         {
-            // 如果面板开了 -> 禁止交互
             if (SettingPanel.Instance.isPanelActive)
             {
                 if (uiGroup.interactable) uiGroup.interactable = false;
                 if (uiGroup.blocksRaycasts) uiGroup.blocksRaycasts = false;
             }
-            // 如果面板关了 -> 允许交互
             else
             {
                 if (!uiGroup.interactable) uiGroup.interactable = true;
@@ -103,7 +97,10 @@ public class StartGame : MonoBehaviour
     {
         if (transitionStarted) return;
         loopTimesWithSound = settings.startGameVideoLoopCount;
+
+        // 【核心修复】实时更新音量
         SetVideoVolume(settings.bgmVolume);
+
         Debug.Log($"StartGame: 同步设置 - 循环: {loopTimesWithSound}, 音量: {settings.bgmVolume}");
     }
 
@@ -171,6 +168,7 @@ public class StartGame : MonoBehaviour
         }
         else if (videoPlayer != null)
         {
+            // 实时控制直通音量
             for (ushort i = 0; i < videoPlayer.audioTrackCount; i++)
             {
                 videoPlayer.SetDirectAudioVolume(i, volume);

@@ -7,14 +7,14 @@ using UnityEngine.SceneManagement;
 public class VideoDisplayController : MonoBehaviour
 {
     [Header("核心组件")]
-    public VideoPlayer videoPlayer;       // 场景里的 Video Player
-    public RawImage displayScreen;        // 显示视频的 Raw Image
-    public AspectRatioFitter videoFitter; // 控制比例的组件
+    public VideoPlayer videoPlayer;
+    public RawImage displayScreen;
+    public AspectRatioFitter videoFitter;
 
     [Header("UI 信息绑定")]
     public TMP_Text titleText;
     public TMP_Text descriptionText;
-    public AudioSource descriptionAudio;  // 用于播放解说
+    public AudioSource descriptionAudio;  // 解说音频源
 
     [Header("控制按钮")]
     public Button exitButton;
@@ -23,15 +23,13 @@ public class VideoDisplayController : MonoBehaviour
     [Header("设置")]
     public string returnSceneName = "Museum_Main";
 
-    // 内部状态
     private bool isPrepared = false;
     private float currentVideoVolume = 1.0f;
     private float currentDescriptionVolume = 1.0f;
-    private bool isPausedByPanel = false; // 是否因为面板打开而暂停
+    private bool isPausedByPanel = false;
 
     void Awake()
     {
-        // 注册设置监听
         if (SettingPanel.Instance != null)
         {
             SettingPanel.RegisterApplyMethod(ApplyCurrentSettings);
@@ -48,15 +46,12 @@ public class VideoDisplayController : MonoBehaviour
 
     void Start()
     {
-        // 1. 应用初始设置
         if (SettingPanel.Instance != null)
         {
             ApplyCurrentSettings(SettingPanel.CurrentSettings);
         }
 
-        // 2. 读取数据
         var data = GameDate.CurrentVideoDate;
-
         if (data != null)
         {
             if (titleText) titleText.text = "《" + data.Title + "》";
@@ -66,11 +61,10 @@ public class VideoDisplayController : MonoBehaviour
             if (descriptionAudio && data.DescriptionAudio)
             {
                 descriptionAudio.clip = data.DescriptionAudio;
-                descriptionAudio.volume = currentDescriptionVolume;
+                descriptionAudio.volume = currentDescriptionVolume; // 应用音量
                 descriptionAudio.Play();
             }
 
-            // 准备视频
             if (videoPlayer && data.VideoFile)
             {
                 videoPlayer.clip = data.VideoFile;
@@ -78,33 +72,27 @@ public class VideoDisplayController : MonoBehaviour
                 videoPlayer.Prepare();
             }
         }
-        else
-        {
-            Debug.LogError("未读取到视频数据！");
-        }
 
-        // 3. 绑定按钮
         if (exitButton) exitButton.onClick.AddListener(OnExitButtonClicked);
         if (pauseButton) pauseButton.onClick.AddListener(TogglePlayPause);
 
-        // 4. 解锁鼠标
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    // 设置应用方法
     private void ApplyCurrentSettings(SettingPanel.SettingDate settings)
     {
+        // 【核心修复】读取两个不同的音量设置
         currentVideoVolume = settings.videoVolume;
         currentDescriptionVolume = settings.descriptionVolume;
 
-        // 更新解说音量
+        // 1. 更新解说音量
         if (descriptionAudio != null)
         {
             descriptionAudio.volume = currentDescriptionVolume;
         }
 
-        // 更新视频音量
+        // 2. 更新视频音量
         if (videoPlayer != null && isPrepared)
         {
             SetVideoPlayerVolume(currentVideoVolume);
@@ -116,28 +104,30 @@ public class VideoDisplayController : MonoBehaviour
         isPrepared = true;
         SetVideoPlayerVolume(currentVideoVolume);
         vp.Play();
+        if (videoFitter != null) videoFitter.aspectRatio = (float)vp.width / vp.height;
+    }
 
-        // 动态调整比例
-        if (videoFitter != null)
+    void SetVideoPlayerVolume(float volume)
+    {
+        if (videoPlayer != null)
         {
-            videoFitter.aspectRatio = (float)vp.width / vp.height;
+            for (ushort i = 0; i < videoPlayer.audioTrackCount; i++)
+            {
+                videoPlayer.SetDirectAudioVolume(i, volume);
+            }
         }
     }
 
+    // ... (Update, TogglePlayPause, OnExitButtonClicked 保持原样，无需变动)
+
     void Update()
     {
-        // 空格键暂停/播放
-        if (isPrepared && Input.GetKeyDown(KeyCode.Space))
-        {
-            TogglePlayPause();
-        }
+        if (isPrepared && Input.GetKeyDown(KeyCode.Space)) TogglePlayPause();
 
-        // 面板互斥逻辑
         if (SettingPanel.Instance != null)
         {
             if (SettingPanel.Instance.isPanelActive)
             {
-                // 面板打开时：强制暂停
                 if (!isPausedByPanel)
                 {
                     if (videoPlayer.isPlaying) videoPlayer.Pause();
@@ -147,14 +137,11 @@ public class VideoDisplayController : MonoBehaviour
             }
             else
             {
-                // 面板关闭后：如果之前是因为面板暂停的，则恢复
                 if (isPausedByPanel)
                 {
                     if (!videoPlayer.isPlaying) videoPlayer.Play();
-                    // 只有当音频还没播完时才恢复
                     if (descriptionAudio && !descriptionAudio.isPlaying && descriptionAudio.time > 0)
                         descriptionAudio.UnPause();
-
                     isPausedByPanel = false;
                 }
             }
@@ -164,38 +151,16 @@ public class VideoDisplayController : MonoBehaviour
     void TogglePlayPause()
     {
         if (videoPlayer == null) return;
-
-        if (videoPlayer.isPlaying)
-            videoPlayer.Pause();
-        else
-            videoPlayer.Play();
-    }
-
-    void SetVideoPlayerVolume(float volume)
-    {
-        if (videoPlayer != null)
-        {
-            // 兼容 Direct 模式
-            for (ushort i = 0; i < videoPlayer.audioTrackCount; i++)
-            {
-                videoPlayer.SetDirectAudioVolume(i, volume);
-            }
-        }
+        if (videoPlayer.isPlaying) videoPlayer.Pause();
+        else videoPlayer.Play();
     }
 
     void OnExitButtonClicked()
     {
         if (videoPlayer) videoPlayer.Stop();
         if (descriptionAudio) descriptionAudio.Stop();
-
-        // 【核心】标记位置恢复
         GameDate.ShouldRestorePosition = true;
-        Debug.Log("视频展示：退出并请求位置恢复");
-
-        // 安全跳转
-        if (System.Type.GetType("SceneLoding") != null)
-            SceneLoding.LoadLevel(returnSceneName);
-        else
-            SceneManager.LoadScene(returnSceneName);
+        if (System.Type.GetType("SceneLoding") != null) SceneLoding.LoadLevel(returnSceneName);
+        else SceneManager.LoadScene(returnSceneName);
     }
 }

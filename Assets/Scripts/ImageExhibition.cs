@@ -32,7 +32,7 @@ public class ImageExhibition : MonoBehaviour
 
     public void StartDisplay()
     {
-        // 1. 保存当前状态 (位置/视角)
+        // 1. 保存当前状态 (存入保险箱)
         SaveState();
 
         // 2. 打包数据
@@ -47,19 +47,33 @@ public class ImageExhibition : MonoBehaviour
         GameData.CurrentImage = packet;
 
         // 4. 跳转
-        SceneLoading.LoadLevel("ImageContent"); // 确保您的场景名是这个
+        SceneLoading.LoadLevel("ImageContent");
     }
 
     private void SaveState()
     {
-        // 找到 SwitchViews 脚本来获取玩家位置
         SwitchViews sv = FindObjectOfType<SwitchViews>();
         if (sv && GameData.Instance)
         {
             Transform p = sv.GetActivePlayerTransform();
-            GameData.Instance.LastPlayerPosition = p.position;
-            GameData.Instance.LastPlayerRotation = p.rotation;
-            GameData.Instance.WasFirstPerson = sv.IsInFirstPerson();
+            if (p)
+            {
+                // =========================================================
+                // 【统一更新】使用 TempSafeState 保险箱机制
+                // =========================================================
+                GameData.PlayerStateData safeData = new GameData.PlayerStateData();
+                safeData.Position = p.position;
+                safeData.Rotation = p.rotation;
+                safeData.IsFirstPerson = sv.IsInFirstPerson();
+                safeData.HasData = true;
+
+                GameData.Instance.TempSafeState = safeData;
+
+                // 禁用自动恢复，防止进入展示场景时发生意外逻辑
+                GameData.Instance.ShouldRestorePosition = false;
+
+                Debug.Log($"[ImageExhibition] 状态已封存。视角: {(safeData.IsFirstPerson ? "第一人称" : "第三人称")}");
+            }
         }
     }
 }

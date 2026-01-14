@@ -19,6 +19,22 @@ public class GameData : MonoBehaviour
         }
     }
 
+    // =========================================================
+    // 【新增】定义一个结构体，把位置、旋转、视角打包在一起
+    // =========================================================
+    [System.Serializable]
+    public struct PlayerStateData
+    {
+        public Vector3 Position;
+        public Quaternion Rotation;
+        public bool IsFirstPerson;
+        public bool HasData; // 标记：箱子里有没有东西
+    }
+
+    // 【新增】这就是那个“保险箱” (临时存档槽)
+    public PlayerStateData TempSafeState;
+    // =========================================================
+
     [Header("=== 1. 全局状态记录 ===")]
     public bool HasPlayedIntro = false;
 
@@ -42,13 +58,12 @@ public class GameData : MonoBehaviour
     public float StepDistance = 1.8f;
     [HideInInspector] public KeyCode VideoPauseKey = KeyCode.Space;
 
-    // 【新增】是否允许跳过片头视频
     [Space(10)]
     [Header("=== 5. 交互设置 ===")]
     [Tooltip("勾选后，玩家可以通过点击鼠标左键或按E键跳过开场视频")]
     public bool AllowSkipIntro = true;
 
-    // 玩家位置记忆
+    // 玩家位置记忆 (通用变量)
     public bool ShouldRestorePosition = false;
     public Vector3 LastPlayerPosition;
     public Quaternion LastPlayerRotation;

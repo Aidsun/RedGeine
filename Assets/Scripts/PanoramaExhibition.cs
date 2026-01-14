@@ -43,14 +43,13 @@ public class PanoramaExhibition : MonoBehaviour
 
     public void StartDisplay()
     {
-        // 1. 保存状态
+        // 1. 保存状态 (存入保险箱)
         SavePlayerState();
 
         // 2. 打包数据
         GameData.PanoramaPacket packet = new GameData.PanoramaPacket();
         packet.Title = this.Title;
         packet.PanoramaContent = this.PanoramaContent;
-        // 全景包里没有Description字段，故不传
         packet.AutoPlayVoice = this.EnableVoice;
         packet.VoiceClip = this.VoiceClip;
 
@@ -62,13 +61,30 @@ public class PanoramaExhibition : MonoBehaviour
 
     private void SavePlayerState()
     {
+        // 查找视角控制脚本
         SwitchViews sv = FindObjectOfType<SwitchViews>();
+
         if (sv && GameData.Instance)
         {
             Transform p = sv.GetActivePlayerTransform();
-            GameData.Instance.LastPlayerPosition = p.position;
-            GameData.Instance.LastPlayerRotation = p.rotation;
-            GameData.Instance.WasFirstPerson = sv.IsInFirstPerson();
+            if (p)
+            {
+                // =========================================================
+                // 【核心修改】直接存入保险箱 (TempSafeState)
+                // =========================================================
+                GameData.PlayerStateData safeData = new GameData.PlayerStateData();
+                safeData.Position = p.position;
+                safeData.Rotation = p.rotation;
+                safeData.IsFirstPerson = sv.IsInFirstPerson();
+                safeData.HasData = true; // 标记：箱子满了
+
+                GameData.Instance.TempSafeState = safeData;
+
+                // 【重要】确保不要触发普通的恢复逻辑 (防止在全景场景掉入虚空)
+                GameData.Instance.ShouldRestorePosition = false;
+
+                Debug.Log($"[Panorama] 状态已安全封存。视角模式: {(safeData.IsFirstPerson ? "第一人称" : "第三人称")}");
+            }
         }
     }
 }

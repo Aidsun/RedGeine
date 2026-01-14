@@ -24,17 +24,14 @@ public class VideoExhibition : MonoBehaviour
 
     void Start()
     {
-        // 初始化显示
         if (TitleLabel) TitleLabel.text = Title;
 
         if (CoverRenderer && CoverImage)
         {
-            // 假设封面材质 shader 是 Unlit/Texture 或 Standard
             CoverRenderer.material.mainTexture = CoverImage.texture;
         }
     }
 
-    // 由 PlayerInteraction 反射调用
     public void SetHighlight(bool active)
     {
         if (OutlineRenderer && GameData.Instance)
@@ -43,10 +40,9 @@ public class VideoExhibition : MonoBehaviour
         }
     }
 
-    // 由 PlayerInteraction 反射调用
     public void StartDisplay()
     {
-        // 1. 保存玩家当前位置和视角
+        // 1. 保存玩家当前位置和视角 (存入保险箱)
         SavePlayerState();
 
         // 2. 打包数据发送给 GameData
@@ -57,7 +53,7 @@ public class VideoExhibition : MonoBehaviour
         packet.AutoPlayVoice = this.EnableVoice;
         packet.VoiceClip = this.VoiceClip;
 
-        GameData.CurrentVideo = packet; // 存入全局静态变量
+        GameData.CurrentVideo = packet;
 
         // 3. 跳转到视频展示场景
         SceneLoading.LoadLevel(TargetScene);
@@ -65,14 +61,27 @@ public class VideoExhibition : MonoBehaviour
 
     private void SavePlayerState()
     {
-        // 查找视角控制脚本来获取准确的位置
         SwitchViews sv = FindObjectOfType<SwitchViews>();
         if (sv && GameData.Instance)
         {
             Transform p = sv.GetActivePlayerTransform();
-            GameData.Instance.LastPlayerPosition = p.position;
-            GameData.Instance.LastPlayerRotation = p.rotation;
-            GameData.Instance.WasFirstPerson = sv.IsInFirstPerson();
+            if (p)
+            {
+                // =========================================================
+                // 【统一更新】使用 TempSafeState 保险箱机制
+                // =========================================================
+                GameData.PlayerStateData safeData = new GameData.PlayerStateData();
+                safeData.Position = p.position;
+                safeData.Rotation = p.rotation;
+                safeData.IsFirstPerson = sv.IsInFirstPerson();
+                safeData.HasData = true;
+
+                GameData.Instance.TempSafeState = safeData;
+
+                GameData.Instance.ShouldRestorePosition = false;
+
+                Debug.Log($"[VideoExhibition] 状态已封存。视角: {(safeData.IsFirstPerson ? "第一人称" : "第三人称")}");
+            }
         }
     }
 }

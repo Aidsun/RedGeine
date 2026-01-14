@@ -34,6 +34,7 @@ public class SettingPanel : MonoBehaviour
     public Button exitButton;
 
     [HideInInspector] public bool isPanelActive = false;
+
     private AudioSource uiAudioSource;
 
     [System.Serializable]
@@ -72,10 +73,8 @@ public class SettingPanel : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // 【修改】添加了自动判断场景并设置鼠标状态的逻辑
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 1. 自动修复 EventSystem
         if (FindObjectOfType<EventSystem>() == null)
         {
             GameObject eventSystem = new GameObject("EventSystem_AutoCreated");
@@ -83,23 +82,20 @@ public class SettingPanel : MonoBehaviour
             eventSystem.AddComponent<StandaloneInputModule>();
         }
 
-        // 2. 核心修复：根据场景名自动切换鼠标状态
+        // 根据场景设置鼠标状态
         if (scene.name == "StartGame")
         {
-            // 在开始菜单：显示鼠标，允许点击
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            Time.timeScale = 1f; // 确保时间流逝正常
+            Time.timeScale = 1f;
         }
         else if (scene.name == "Museum_Main")
         {
-            // 在游戏场景：锁定鼠标，隐藏光标 (开启沉浸式体验)
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             Time.timeScale = 1f;
         }
 
-        // 3. 确保面板默认是关闭的
         isPanelActive = false;
         if (panelRoot != null) panelRoot.SetActive(false);
 
@@ -118,13 +114,8 @@ public class SettingPanel : MonoBehaviour
         uiAudioSource.spatialBlend = 0f;
         uiAudioSource.playOnAwake = false;
 
-        // Start 运行时也执行一次状态检查（防止直接在场景里运行而不经过加载流程）
         OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
     }
-
-    // === 以下代码保持不变，为节省篇幅省略 (请保留原文件中的 InitUI, BindEvents, SwitchSettingPanel 等) ===
-    // ⚠️ 注意：请确保下方代码与之前我给你的版本一致
-    // ⚠️ 重点是保留 SwitchSettingPanel 中的 InternalTime 修复
 
     private void InitUI()
     {
@@ -225,6 +216,8 @@ public class SettingPanel : MonoBehaviour
         if (isOpen)
         {
             Time.timeScale = 0f;
+
+            // 强制所有视频跟随游戏时间 (InternalTime)
             VideoPlayer[] allVideoPlayers = FindObjectsOfType<VideoPlayer>();
             foreach (var vp in allVideoPlayers)
             {
@@ -247,7 +240,6 @@ public class SettingPanel : MonoBehaviour
         {
             Time.timeScale = 1f;
 
-            // 关闭面板时，如果在游戏场景，需要重新锁定鼠标
             if (SceneManager.GetActiveScene().name == "StartGame")
             {
                 Cursor.lockState = CursorLockMode.None;
@@ -261,6 +253,7 @@ public class SettingPanel : MonoBehaviour
         }
     }
 
+    // 【核心修改】OnExitButton 逻辑
     public void OnExitButton()
     {
         Time.timeScale = 1f;
@@ -275,8 +268,41 @@ public class SettingPanel : MonoBehaviour
             Application.Quit();
 #endif
         }
-        else if (currentScene == "Museum_Main") { SceneManager.LoadScene("StartGame"); }
-        else { if (GameData.Instance) GameData.Instance.ShouldRestorePosition = true; SceneLoading.LoadLevel("Museum_Main"); }
+        else if (currentScene == "Museum_Main")
+        {
+            SceneManager.LoadScene("StartGame");
+        }
+        else
+        {
+            if (GameData.Instance)
+            {
+                // =========================================================
+                // 【保险箱机制】检查是否有临时存档
+                // =========================================================
+                if (GameData.Instance.TempSafeState.HasData)
+                {
+                    // 1. 取出存档
+                    var safeData = GameData.Instance.TempSafeState;
+                    GameData.Instance.LastPlayerPosition = safeData.Position;
+                    GameData.Instance.LastPlayerRotation = safeData.Rotation;
+                    GameData.Instance.WasFirstPerson = safeData.IsFirstPerson;
+
+                    // 2. 标记需要恢复
+                    GameData.Instance.ShouldRestorePosition = true;
+
+                    // 3. 清空保险箱
+                    GameData.Instance.TempSafeState.HasData = false;
+
+                    Debug.Log("[SettingPanel] 检测到临时存档，已恢复状态并清空存档。");
+                }
+                else
+                {
+                    // 如果没有存档，则不进行恢复 (默认去出生点)
+                    GameData.Instance.ShouldRestorePosition = false;
+                }
+            }
+            SceneLoading.LoadLevel("Museum_Main");
+        }
     }
 
     private void SaveSettings()
